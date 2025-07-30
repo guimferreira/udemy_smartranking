@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePlayerDto } from './dtos/create-player.dto';
 import { Player } from './interfaces/player.interface';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,7 +9,7 @@ import { UpdatePlayerDto } from './dtos/update-player.dto';
 export class PlayersService {
     constructor(
         @InjectModel('Player') private readonly playerModel: Model<Player>
-    ) { }
+    ) { };
 
     async createPlayer(dto: CreatePlayerDto): Promise<void> {
         const { email } = dto;
@@ -34,16 +34,22 @@ export class PlayersService {
         return findedPlayer;
     };
 
-    async updatePlayer(email: string, dto: UpdatePlayerDto): Promise<void> {
-        const findedPlayer = await this.playerModel.findOne({ email }).exec();
+    async getPlayerById(_id: string): Promise<Player> {
+        const findedPlayer = await this.playerModel.findOne({ _id }).exec();
         if (!findedPlayer) {
-            throw new NotFoundException(`Player with e-mail ${email} not founded`)
+            throw new NotFoundException(`Player with ID ${_id} not founded`)
         }
+        return findedPlayer;
+    };
 
-        await this.playerModel.findOneAndUpdate(
+    async updatePlayer(email: string, dto: UpdatePlayerDto): Promise<void> {
+        const findedPlayer = await this.playerModel.findOneAndUpdate(
             { email },
             { $set: dto }).exec();
-    }
+        if (!findedPlayer) {
+            throw new NotFoundException(`Player with e-mail ${email} not founded`)
+        };
+    };
 
 
     async deletePlayerByEmail(email: string): Promise<void> {
