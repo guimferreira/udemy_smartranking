@@ -25,11 +25,11 @@ export class CategoriesService {
     };
 
     async getCategories(): Promise<Category[]> {
-        return await this.categoryModel.find().populate('players').exec();
+        return await this.categoryModel.find().exec();
     };
 
     async getCategoryByCat(category: string): Promise<Category> {
-        const findedCategory = await this.categoryModel.findOne({ category }).exec();
+        const findedCategory = await this.categoryModel.findOne({ category }).populate('players').exec();
         if (!findedCategory) {
             throw new NotFoundException(`Category ${category} not founded`);
         }
@@ -73,6 +73,15 @@ export class CategoriesService {
         await this.categoryModel.findOneAndUpdate(
             { category },
             { $set: findedCategory }).exec()
+    };
+
+    async getCategoryFromPlayer(idPlayer: any): Promise<Category | null> {
+        const players = await this.playerService.getPlayers();
+        const playerFilter = players.filter(player => player._id == idPlayer);
+        if (playerFilter.length == 0) {
+            throw new BadRequestException(`The id ${idPlayer} is not a player`)
+        };
+        return await this.categoryModel.findOne().where('players').in(idPlayer).exec();
     };
 
 }

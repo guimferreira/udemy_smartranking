@@ -1,3 +1,4 @@
+import { Document } from "mongoose";
 import { Player } from "../../players/interfaces/player.interface";
 
 export interface Category extends Document {

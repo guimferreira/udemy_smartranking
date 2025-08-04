@@ -19,6 +19,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         response.status(status).json({
             timeStamp: new Date().toISOString(),
+            method: request.method,
             path: request.url,
             error: message
         });
